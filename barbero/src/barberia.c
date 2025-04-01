@@ -10,10 +10,6 @@
 #include <memoriaI.h>
 #include <semaforoI.h>
 
-#define ROJO "\033[31m"
-#define VERDE "\033[32m"
-#define AZUL "\033[34m"
-
 struct Tabla_Procesos *tabla_procesos;
 
 int instalar_señal() {
@@ -50,7 +46,7 @@ void crear_sem_mem(int n_clientes) {
     crear_sem(SILLAS, 0);
 
     //  Variable de número de clientes
-    crear_var(NUMERO_CLIENTES, n_clientes);
+    crear_var(NUMERO_CLIENTES_ESPERA, 0);
 }
 
 void crear_tabla_procesos(int n_clientes) {
@@ -132,7 +128,7 @@ void liberar_memoria() {
     destruir_sem(SILLON);
     destruir_sem(SILLAS);
 
-    destruir_var(NUMERO_CLIENTES);
+    destruir_var(NUMERO_CLIENTES_ESPERA);
 
     free(tabla_procesos);
 }
