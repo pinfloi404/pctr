@@ -15,7 +15,9 @@
 int n_clientes, n_procesos_clientes, longitud_tabla_procesos;
 struct Tabla_Procesos *tabla_procesos;
 
+//  Función que comprueba los argumentos de entrada
 int comprobar_arguentos(const char *n_clientes_arg) {
+    //  Comprueba si el argumento es NULL o vacío
     if (n_clientes_arg == NULL || strlen(n_clientes_arg) == 0)
     {
         fprintf(stderr, ROJO "Aquí no hay nada. [%s].\n┐(´～｀)┌\n", n_clientes_arg);
@@ -24,6 +26,7 @@ int comprobar_arguentos(const char *n_clientes_arg) {
 
     n_clientes = atoi(n_clientes_arg);
 
+    //  Comprueba si el argumento es un número
     if (n_clientes <= 0)
     {
         fprintf(stderr, ROJO "No es bueno. [%s] -> [%d].\n┐(´～｀)┌\n", n_clientes_arg, n_clientes);
@@ -33,6 +36,7 @@ int comprobar_arguentos(const char *n_clientes_arg) {
     return 0;
 }
 
+//  Función que instala la señal SIGINT
 int instalar_señal() {
     int ok = 0;
 
@@ -44,6 +48,7 @@ int instalar_señal() {
     return ok;
 }
 
+//  Función que se ejecuta al recibir la señal SIGINT
 void señal(int señal) {
     if (señal == SIGINT)
     {
@@ -70,20 +75,23 @@ void crear_sem_mem() {
     crear_sem(CORTE, 0);
 
     //  Variable de número de clientes
-    crear_var(NUMERO_CLIENTES_ESPERA, 0);
+    crear_var(N_CLIENTES_ESPERA, 0);
 }
 
+//  Función que crea la tabla de procesos
 void crear_tabla_procesos() {
     tabla_procesos = malloc(n_clientes * sizeof(struct Tabla_Procesos));
 
     tabla_procesos[0].pid = 0;
 
+    //  Se inicializa la tabla de procesos
     for (int i = 0; i < longitud_tabla_procesos; i++)
     {
         tabla_procesos[i].pid = 0;
     }
 }
 
+//  Función que crea un nuevo proceso
 void crear_proceso(int i, char *ruta, char *nombre) {
     pid_t pid;
 
@@ -109,13 +117,16 @@ void crear_proceso(int i, char *ruta, char *nombre) {
     tabla_procesos[i].nombre = nombre;
 }
 
+//  Función que espera a que finalicen todos los procesos clientes
 void finalizar_procesos_clientes() {
     pid_t pid;
 
+    //  Se espera a que finalicen todos los procesos clientes
     while (n_procesos_clientes > 0)
     {
         pid = wait(NULL);
 
+        //  Se finalizan los procesos clientes
         for (int i = 1; i < longitud_tabla_procesos; i++)
         {
             if (pid == tabla_procesos[i].pid)
@@ -132,9 +143,11 @@ void finalizar_procesos_clientes() {
     fprintf(stdout, ROJO "\n🚨🚨🚨 Todos los procesos [%s] han finalizado. 🚨🚨🚨\n", CLIENTE);
 }
 
+//  Función que cierra los procesos de la barbería
 void cerrar_procesos() {
     fprintf(stdout, ROJO "\n🚨🚨🚨 Comprobando que lo procesos de [%s] y [%s] han terminado. 🚨🚨🚨\n", BARBERO, CLIENTE);
     
+    //  Se envía la señal SIGINT a todos los procesos de la barbería
     for (int i = 0; i < longitud_tabla_procesos; i++)
     {
         if (tabla_procesos[i].pid != 0)
@@ -151,16 +164,18 @@ void cerrar_procesos() {
     fprintf(stdout, ROJO "\n🚨🚨🚨 Todos los procesos de [%s] y [%s] han terminado. 🚨🚨🚨\n\n", BARBERO, CLIENTE);
 }
 
+//  Función que libera la memoria compartida y los semáforos
 void liberar_memoria() {
     destruir_sem(MUTEX);
     destruir_sem(BARBERO);
     destruir_sem(SILLON);
 
-    destruir_var(NUMERO_CLIENTES_ESPERA);
+    destruir_var(N_CLIENTES_ESPERA);
 
     free(tabla_procesos);
 }
 
+//  Función principal
 int main(int argc, char const *argv[])
 {
     const char *n_clientes_arg = argv[1];

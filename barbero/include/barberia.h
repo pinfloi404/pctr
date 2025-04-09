@@ -1,14 +1,14 @@
 #include <memoriaI.h>
 #include <semaforoI.h>
 
-// Semáforos
+//  Semáforos
 #define MUTEX "mutex"
 #define BARBERO "barbero"
 #define SILLON "sillon"
 #define CORTE "corte"
 
 //  Memoria compartida
-#define NUMERO_CLIENTES_ESPERA "clientes_espera"
+#define N_CLIENTES_ESPERA "n_clientes_espera"
 
 //  Nombres y rutas
 #define BARBERO "barbero"
@@ -16,6 +16,9 @@
 
 #define CLIENTE "cliente"
 #define RUTA_CLIENTE "./exec/cliente"
+
+//  Constantes
+#define N_CLIENTES_ESPERA_MAX 8
 
 //  Colores
 #define ROJO "\033[31m"
@@ -29,7 +32,7 @@ struct Tabla_Procesos {
 };
 
 //  Funciones y variables Barbería
-int comprobar_arguentos();
+int comprobar_arguentos(const char *n_clientes_arg);
 
 int instalar_señal();
 

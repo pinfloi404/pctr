@@ -11,15 +11,17 @@
 sem_t *mutex, *barbero, *sillon, *corte;
 int n_clientes_espera, n;
 
+//  Función que obtiene los semáforos y la variable de memoria compartida
 void obtener_sem_mem() {
     mutex = get_sem(MUTEX);
     barbero = get_sem(BARBERO);
     sillon = get_sem(SILLON);
     corte = get_sem(CORTE);
 
-    n_clientes_espera = obtener_var(NUMERO_CLIENTES_ESPERA);
+    n_clientes_espera = obtener_var(N_CLIENTES_ESPERA);
 }
 
+//  Función que decrementa el número de clientes en espera
 void decrementar_clientes_espera() {
     wait_sem(mutex);
 
@@ -30,33 +32,37 @@ void decrementar_clientes_espera() {
     signal_sem(mutex);
 }
 
+//  Función principal
 int main(int argc, char const *argv[])
 {
     pid_t pid = getpid();
 
     obtener_sem_mem();
 
-    fprintf(stdout, VERDE "El [barbero / %d] está durmiendo.\n", pid);
-
     while (1) {
-        // Espera a que un cliente lo despierte
+        fprintf(stdout, VERDE "El [barbero / %d] está durmiendo.\n", pid);
+
+        //  Espera a que un cliente lo despierte
         wait_sem(barbero);
 
         fprintf(stdout, VERDE "El [barbero / %d] se despierta.\n", pid);
 
-        // Deja el sillón libre
+        //  Marca el sillón como libre
         signal_sem(sillon);
 
-        // Se decrementa el número de clientes en espera
+        //  Se guarda el número actual de clientes en espera
+        consultar_var(n_clientes_espera, &n);
+
+        //  Se decrementa el número de clientes en espera
         int n_a = n;
         decrementar_clientes_espera(pid);
 
-        fprintf(stdout, VERDE "El cliente se sienta en el sillón... [%d] -> [%d] y el [barbero / %d] le hace un cortecito CR7.\n", n_a, n, pid);
+        fprintf(stdout, VERDE "El [barbero / %d] le hace un cortecito CR7... [%d] -> [%d].\n", pid, n_a, n);
 
-        // Simula el tiempo que tarda el corte de pelo
+        //  Simula el tiempo que tarda el corte de pelo
         sleep(rand() % 10 + 5);
 
-        // Finaliza el corte
+        //  Finaliza el corte
         signal_sem(corte);
 
         fprintf(stdout, VERDE "El [barbero / %d] termina de cortar el pelo y se vuelve a dormir.\n", pid);
