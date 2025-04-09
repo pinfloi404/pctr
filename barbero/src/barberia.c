@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,24 @@
 
 int n_clientes, n_procesos_clientes, longitud_tabla_procesos;
 struct Tabla_Procesos *tabla_procesos;
+
+int comprobar_arguentos(const char *n_clientes_arg) {
+    if (n_clientes_arg == NULL || strlen(n_clientes_arg) == 0)
+    {
+        fprintf(stderr, ROJO "Aquí no hay nada. [%s].\n┐(´～｀)┌\n", n_clientes_arg);
+        return -1;
+    }
+
+    n_clientes = atoi(n_clientes_arg);
+
+    if (n_clientes <= 0)
+    {
+        fprintf(stderr, ROJO "No es bueno. [%s] -> [%d].\n┐(´～｀)┌\n", n_clientes_arg, n_clientes);
+        return -1;
+    }
+
+    return 0;
+}
 
 int instalar_señal() {
     int ok = 0;
@@ -71,14 +90,14 @@ void crear_proceso(int i, char *ruta, char *nombre) {
     switch (pid = fork())
     {
     case -1:
-        fprintf(stderr, ROJO "No se ha podido lanzar el proceso %s: %s.\n", nombre, strerror(errno));
+        fprintf(stderr, ROJO "No se ha podido lanzar el proceso [%s]: %s.\n", nombre, strerror(errno));
         exit(EXIT_FAILURE);
         break;
 
     case 0:
         if (execl(ruta, nombre, NULL) == -1)
         {
-            fprintf(stderr, ROJO "No se ha podido ejecutar el proceso %s: %s.\n", nombre, strerror(errno));
+            fprintf(stderr, ROJO "No se ha podido ejecutar el proceso [%s]: %s.\n", nombre, strerror(errno));
             exit(EXIT_FAILURE);
         }
         break;
@@ -110,11 +129,11 @@ void finalizar_procesos_clientes() {
         }
     }
 
-    fprintf(stdout, ROJO "\n🚨🚨🚨 Todos los procesos %s y %s han finalizado. 🚨🚨🚨\n", BARBERO, CLIENTE);
+    fprintf(stdout, ROJO "\n🚨🚨🚨 Todos los procesos [%s] han finalizado. 🚨🚨🚨\n", CLIENTE);
 }
 
 void cerrar_procesos() {
-    fprintf(stdout, ROJO "\n🚨🚨🚨 Comprobando que lo procesos de %s y %s han terminado. 🚨🚨🚨\n", BARBERO, CLIENTE);
+    fprintf(stdout, ROJO "\n🚨🚨🚨 Comprobando que lo procesos de [%s] y [%s] han terminado. 🚨🚨🚨\n", BARBERO, CLIENTE);
     
     for (int i = 0; i < longitud_tabla_procesos; i++)
     {
@@ -129,7 +148,7 @@ void cerrar_procesos() {
         }
     }
 
-    fprintf(stdout, ROJO "\n🚨🚨🚨 Todos los procesos de %s y %s han terminado. 🚨🚨🚨\n\n", BARBERO, CLIENTE);
+    fprintf(stdout, ROJO "\n🚨🚨🚨 Todos los procesos de [%s] y [%s] han terminado. 🚨🚨🚨\n\n", BARBERO, CLIENTE);
 }
 
 void liberar_memoria() {
@@ -144,11 +163,18 @@ void liberar_memoria() {
 
 int main(int argc, char const *argv[])
 {
-    n_clientes = 4, n_procesos_clientes = n_clientes, longitud_tabla_procesos = (n_clientes + 1);
+    const char *n_clientes_arg = argv[1];
+
+    if (comprobar_arguentos(n_clientes_arg) == -1)
+    {
+        return EXIT_FAILURE;
+    }
+
+    n_procesos_clientes = n_clientes, longitud_tabla_procesos = (n_clientes + 1);
 
     if (instalar_señal() == -1)
     {
-        fprintf(stderr, ROJO "No se puede añadir Ctrl + C 😔😔😔.\n%s", strerror(errno));
+        fprintf(stderr, ROJO "No se puede añadir Ctrl + C\n┐(´～｀)┌.\n%s", strerror(errno));
 
         return -1;
     }

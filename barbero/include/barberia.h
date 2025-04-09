@@ -29,6 +29,8 @@ struct Tabla_Procesos {
 };
 
 //  Funciones y variables Barbería
+int comprobar_arguentos();
+
 int instalar_señal();
 
 void señal(int señal);

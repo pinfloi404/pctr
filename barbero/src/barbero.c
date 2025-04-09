@@ -48,9 +48,10 @@ int main(int argc, char const *argv[])
         signal_sem(sillon);
 
         // Se decrementa el número de clientes en espera
+        int n_a = n;
         decrementar_clientes_espera(pid);
 
-        fprintf(stdout, VERDE "El cliente se sienta en el sillón... [%d--] y el [barbero / %d] le hace un cortecito CR7.\n", n, pid);
+        fprintf(stdout, VERDE "El cliente se sienta en el sillón... [%d] -> [%d] y el [barbero / %d] le hace un cortecito CR7.\n", n_a, n, pid);
 
         // Simula el tiempo que tarda el corte de pelo
         sleep(rand() % 10 + 5);

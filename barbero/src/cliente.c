@@ -40,9 +40,10 @@ int main(int argc, char const *argv[])
     fprintf(stdout, AZUL "El [cliente / %d] entra en la barbería.\n", pid);
     
     //  Se incrementa el número de clientes en espera
+    int n_a = n;
     incrementar_clientes_espera(pid);
 
-    fprintf(stdout, AZUL "El [cliente / %d] se sienta esperar... [%d++]\n", pid, n);
+    fprintf(stdout, AZUL "El [cliente / %d] se sienta esperar... [%d] -> [%d]\n", pid, n_a, n);
 
     // Despierta al barbero
     signal_sem(barbero);
