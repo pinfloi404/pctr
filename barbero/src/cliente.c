@@ -1,42 +1,63 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <barberia.h>
 
 #include <memoriaI.h>
 #include <semaforoI.h>
 
-void obtener_sem_mem() {
-    mutex = get_sem(MUTEX_ESPERA);
-    sillon = get_sem(SILLON);
-    sillas = get_sem(SILLAS);
+sem_t *mutex, *barbero, *sillon, *corte;
+int n_clientes_espera, n;
 
-    clientes_espera = obtener_var(NUMERO_CLIENTES_ESPERA);
+void obtener_sem_mem() {
+    mutex = get_sem(MUTEX);
+    barbero = get_sem(BARBERO);
+    sillon = get_sem(SILLON);
+    corte = get_sem(CORTE);
+
+    n_clientes_espera = obtener_var(NUMERO_CLIENTES_ESPERA);
 }
 
-void incrementar_clientes_espera(int n) {
-    consultar_var(clientes_espera, &n);
-    modificar_var(clientes_espera, ++n);
-    consultar_var(clientes_espera, &n);
+void incrementar_clientes_espera() {
+    wait_sem(mutex);
+
+    consultar_var(n_clientes_espera, &n);
+    modificar_var(n_clientes_espera, ++n);
+    consultar_var(n_clientes_espera, &n);
+
+    signal_sem(mutex);
 }
 
 int main(int argc, char const *argv[])
 {
-    int n;
-
     pid_t pid = getpid();
     srand(pid);
 
     obtener_sem_mem();
 
-    fprintf(stdout, AZUL "El cliente [%d] entra en la barbería.", pid);
+    fprintf(stdout, AZUL "El [cliente / %d] entra en la barbería.\n", pid);
+    
+    //  Se incrementa el número de clientes en espera
+    incrementar_clientes_espera(pid);
 
-    sleep(rand() % 31 + 30);
+    fprintf(stdout, AZUL "El [cliente / %d] se sienta esperar... [%d++]\n", pid, n);
 
-    wait_sem(mutex);
+    // Despierta al barbero
+    signal_sem(barbero);
 
-    incrementar_clientes_espera(n);
+    fprintf(stdout, AZUL "El [cliente / %d] despierta al barbero.\n", pid);
+
+    // Espera a que el sillón esté libre
+    wait_sem(sillon);
+
+    fprintf(stdout, AZUL "El [cliente / %d] ocupa el sillón para que le corten el pelo.\n", pid);
+
+    // Espera a que le corten el pelo
+    wait_sem(corte);
+
+    fprintf(stdout, AZUL "El [cliente / %d] se va muy contento :)\n", pid);
 
     return EXIT_SUCCESS;
 }

@@ -1,7 +1,11 @@
+#include <memoriaI.h>
+#include <semaforoI.h>
+
 // Semáforos
-#define MUTEX_ESPERA "mutex"
+#define MUTEX "mutex"
+#define BARBERO "barbero"
 #define SILLON "sillon"
-#define SILLAS "sillas"
+#define CORTE "corte"
 
 //  Memoria compartida
 #define NUMERO_CLIENTES_ESPERA "clientes_espera"
@@ -25,28 +29,25 @@ struct Tabla_Procesos {
 };
 
 //  Funciones y variables Barbería
-int n_procesos_clientes, longitud_tabla_procesos;
-
 int instalar_señal();
 
 void señal(int señal);
 
-void crear_sem_mem(int n_clientes);
+void crear_sem_mem();
 
-void crear_tabla_procesos(int n_clientes);
+void crear_tabla_procesos();
 
-void crear_proceso(int i, const char *ruta, const char *nombre);
+void crear_proceso(int i, char *ruta, char *nombre);
 
-void finalizar_procesos(int n_clientes, const char *nombre);
+void finalizar_procesos_clientes();
 
 void cerrar_procesos();
 
 void liberar_memoria();
 
-//  Funciones y variables Cliente y Barbero
-static sem_t *mutex, *sillon, *sillas;
-int clientes_espera;
-
+//  Funciones Cliente y Barbero
 void obtener_sem_mem();
 
-void incrementar_clientes_espera(int n);
+void incrementar_clientes_espera();
+
+void decrementar_clientes_espera();
